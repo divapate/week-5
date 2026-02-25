@@ -3,22 +3,19 @@
 import pandas as pd
 import numpy as np
 
-DATA_URL = "https://raw.githubusercontent.com/leontoddjohnson/datasets/main/data/titanic.csv"
-
 
 # -------------------------------------------------
 # Exercise 1
 # -------------------------------------------------
 
-def survival_demographics():
-
-    df = pd.read_csv(DATA_URL)
+def survival_demographics(df):
 
     bins = [0, 12, 19, 59, np.inf]
     labels = ["Child", "Teen", "Adult", "Senior"]
 
+    # Create categorical age group
     df["age_group"] = pd.cut(
-        df["Age"],
+        df["age"],
         bins=bins,
         labels=labels
     )
@@ -27,21 +24,21 @@ def survival_demographics():
         pd.CategoricalDtype(categories=labels)
     )
 
-    # Force all 24 combinations
+    # Create full 24-combination index
     full_index = pd.MultiIndex.from_product(
         [
-            [1, 2, 3],
-            ["female", "male"],
+            sorted(df["pclass"].unique()),
+            sorted(df["sex"].unique()),
             labels
         ],
-        names=["Pclass", "Sex", "age_group"]
+        names=["pclass", "sex", "age_group"]
     )
 
     grouped = (
-        df.groupby(["Pclass", "Sex", "age_group"])
+        df.groupby(["pclass", "sex", "age_group"])
         .agg(
-            n_passengers=("Survived", "count"),
-            n_survivors=("Survived", "sum")
+            n_passengers=("survived", "count"),
+            n_survivors=("survived", "sum")
         )
         .reindex(full_index, fill_value=0)
         .reset_index()
@@ -52,6 +49,11 @@ def survival_demographics():
         grouped["n_passengers"]
     )
 
+    # Ensure categorical dtype survives reset_index
+    grouped["age_group"] = grouped["age_group"].astype(
+        pd.CategoricalDtype(categories=labels)
+    )
+
     return grouped
 
 
@@ -59,32 +61,27 @@ def survival_demographics():
 # Exercise 2
 # -------------------------------------------------
 
-def family_groups():
+def family_groups(df):
 
-    df = pd.read_csv(DATA_URL)
-
-    df["family_size"] = df["SibSp"] + df["Parch"] + 1
+    df["family_size"] = df["sibsp"] + df["parch"] + 1
 
     grouped = df.groupby(
-        ["family_size", "Pclass"],
+        ["family_size", "pclass"],
         as_index=False
     ).agg(
-        n_passengers=("Fare", "count"),
-        avg_fare=("Fare", "mean"),
-        min_fare=("Fare", "min"),
-        max_fare=("Fare", "max")
+        n_passengers=("fare", "count"),
+        avg_fare=("fare", "mean"),
+        min_fare=("fare", "min"),
+        max_fare=("fare", "max")
     )
 
     return grouped
 
 
-def last_names():
+def last_names(df):
 
-    df = pd.read_csv(DATA_URL)
-
-    # Must return a pandas Series
     return (
-        df["Name"]
+        df["name"]
         .str.split(",")
         .str[0]
         .value_counts()
@@ -95,12 +92,10 @@ def last_names():
 # Bonus
 # -------------------------------------------------
 
-def determine_age_division():
+def determine_age_division(df):
 
-    df = pd.read_csv(DATA_URL)
+    median_age = df.groupby("pclass")["age"].transform("median")
 
-    median_age = df.groupby("Pclass")["Age"].transform("median")
-
-    df["older_passenger"] = df["Age"] > median_age
+    df["older_passenger"] = df["age"] > median_age
 
     return df
