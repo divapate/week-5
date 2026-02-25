@@ -4,21 +4,21 @@ import pandas as pd
 import numpy as np
 
 
+DATA_URL = "https://raw.githubusercontent.com/leontoddjohnson/datasets/main/data/titanic.csv"
+
+
 # -------------------------------------------------
 # Exercise 1
 # -------------------------------------------------
 
 def survival_demographics():
 
-    # assume df already exists
+    df = pd.read_csv(DATA_URL)
+
     bins = [0, 12, 19, 59, np.inf]
     labels = ["Child", "Teen", "Adult", "Senior"]
 
-    df["age_group"] = pd.cut(
-        df["Age"],
-        bins=bins,
-        labels=labels
-    )
+    df["age_group"] = pd.cut(df["Age"], bins=bins, labels=labels)
 
     grouped = df.groupby(
         ["Pclass", "Sex", "age_group"],
@@ -42,6 +42,8 @@ def survival_demographics():
 
 def family_groups():
 
+    df = pd.read_csv(DATA_URL)
+
     df["family_size"] = df["SibSp"] + df["Parch"] + 1
 
     grouped = df.groupby(
@@ -58,6 +60,8 @@ def family_groups():
 
 
 def last_names():
+
+    df = pd.read_csv(DATA_URL)
 
     df["last_name"] = df["Name"].str.split(",").str[0]
 
@@ -77,6 +81,8 @@ def last_names():
 # -------------------------------------------------
 
 def determine_age_division():
+
+    df = pd.read_csv(DATA_URL)
 
     median_age = df.groupby("Pclass")["Age"].transform("median")
 
