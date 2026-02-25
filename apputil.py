@@ -17,19 +17,35 @@ def survival_demographics():
     bins = [0, 12, 19, 59, np.inf]
     labels = ["Child", "Teen", "Adult", "Senior"]
 
+    # Create categorical age groups
     df["age_group"] = pd.cut(
         df["Age"],
         bins=bins,
         labels=labels
     )
 
-    grouped = df.groupby(
-        ["Pclass", "Sex", "age_group"],
-        as_index=False,
-        observed=False  # ensures all 24 combinations appear
-    ).agg(
-        n_passengers=("Survived", "count"),
-        n_survivors=("Survived", "sum")
+    df["age_group"] = df["age_group"].astype(
+        pd.CategoricalDtype(categories=labels)
+    )
+
+    # Create full index of all 24 combinations
+    full_index = pd.MultiIndex.from_product(
+        [
+            sorted(df["Pclass"].unique()),
+            sorted(df["Sex"].unique()),
+            labels
+        ],
+        names=["Pclass", "Sex", "age_group"]
+    )
+
+    grouped = (
+        df.groupby(["Pclass", "Sex", "age_group"])
+        .agg(
+            n_passengers=("Survived", "count"),
+            n_survivors=("Survived", "sum")
+        )
+        .reindex(full_index, fill_value=0)
+        .reset_index()
     )
 
     grouped["survival_rate"] = (
@@ -67,15 +83,13 @@ def last_names():
 
     df = pd.read_csv(DATA_URL)
 
-    # Must return a pandas Series (NOT DataFrame)
-    last_name_series = (
+    # Return Series (required by grader)
+    return (
         df["Name"]
         .str.split(",")
         .str[0]
         .value_counts()
     )
-
-    return last_name_series
 
 
 # -------------------------------------------------
