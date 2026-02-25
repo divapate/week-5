@@ -3,21 +3,17 @@
 import pandas as pd
 import numpy as np
 
-DATA_URL = "https://raw.githubusercontent.com/leontoddjohnson/datasets/main/data/titanic.csv"
-
 
 # -------------------------------------------------
 # Exercise 1: Survival Demographics
 # -------------------------------------------------
 
-def survival_demographics():
-
-    df = pd.read_csv(DATA_URL)
+def survival_demographics(df):
 
     bins = [0, 12, 19, 59, np.inf]
     labels = ["Child", "Teen", "Adult", "Senior"]
 
-    # Create categorical age groups
+    # Create age_group as categorical
     df["age_group"] = pd.cut(
         df["Age"],
         bins=bins,
@@ -28,23 +24,13 @@ def survival_demographics():
         pd.CategoricalDtype(categories=labels)
     )
 
-    # Create full index of all 24 combinations
-    full_index = pd.MultiIndex.from_product(
-        [
-            sorted(df["Pclass"].unique()),
-            sorted(df["Sex"].unique()),
-            labels
-        ],
-        names=["Pclass", "Sex", "age_group"]
-    )
-
+    # Group and ensure all 24 combinations appear
     grouped = (
-        df.groupby(["Pclass", "Sex", "age_group"])
+        df.groupby(["Pclass", "Sex", "age_group"], observed=False)
         .agg(
             n_passengers=("Survived", "count"),
             n_survivors=("Survived", "sum")
         )
-        .reindex(full_index, fill_value=0)
         .reset_index()
     )
 
@@ -60,9 +46,7 @@ def survival_demographics():
 # Exercise 2: Family Size and Wealth
 # -------------------------------------------------
 
-def family_groups():
-
-    df = pd.read_csv(DATA_URL)
+def family_groups(df):
 
     df["family_size"] = df["SibSp"] + df["Parch"] + 1
 
@@ -79,11 +63,9 @@ def family_groups():
     return grouped
 
 
-def last_names():
+def last_names(df):
 
-    df = pd.read_csv(DATA_URL)
-
-    # Return Series (required by grader)
+    # Must return a pandas Series
     return (
         df["Name"]
         .str.split(",")
@@ -96,10 +78,11 @@ def last_names():
 # Bonus: Age Division
 # -------------------------------------------------
 
-def determine_age_division():
+def determine_age_division(df):
 
     median_age = df.groupby("Pclass")["Age"].transform("median")
 
     df["older_passenger"] = df["Age"] > median_age
 
     return df
+
