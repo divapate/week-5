@@ -3,12 +3,11 @@
 import pandas as pd
 import numpy as np
 
-
 DATA_URL = "https://raw.githubusercontent.com/leontoddjohnson/datasets/main/data/titanic.csv"
 
 
 # -------------------------------------------------
-# Exercise 1
+# Exercise 1: Survival Demographics
 # -------------------------------------------------
 
 def survival_demographics():
@@ -18,11 +17,16 @@ def survival_demographics():
     bins = [0, 12, 19, 59, np.inf]
     labels = ["Child", "Teen", "Adult", "Senior"]
 
-    df["age_group"] = pd.cut(df["Age"], bins=bins, labels=labels)
+    df["age_group"] = pd.cut(
+        df["Age"],
+        bins=bins,
+        labels=labels
+    )
 
     grouped = df.groupby(
         ["Pclass", "Sex", "age_group"],
-        as_index=False
+        as_index=False,
+        observed=False  # ensures all 24 combinations appear
     ).agg(
         n_passengers=("Survived", "count"),
         n_survivors=("Survived", "sum")
@@ -37,7 +41,7 @@ def survival_demographics():
 
 
 # -------------------------------------------------
-# Exercise 2
+# Exercise 2: Family Size and Wealth
 # -------------------------------------------------
 
 def family_groups():
@@ -63,21 +67,19 @@ def last_names():
 
     df = pd.read_csv(DATA_URL)
 
-    df["last_name"] = df["Name"].str.split(",").str[0]
-
-    counts = (
-        df["last_name"]
+    # Must return a pandas Series (NOT DataFrame)
+    last_name_series = (
+        df["Name"]
+        .str.split(",")
+        .str[0]
         .value_counts()
-        .reset_index()
     )
 
-    counts.columns = ["last_name", "count"]
-
-    return counts
+    return last_name_series
 
 
 # -------------------------------------------------
-# Bonus
+# Bonus: Age Division
 # -------------------------------------------------
 
 def determine_age_division():
