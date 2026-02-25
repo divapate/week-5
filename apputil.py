@@ -8,9 +8,9 @@ import numpy as np
 # Exercise 1
 # -------------------------------------------------
 
-def survival_demographics(df):
+def survival_demographics():
 
-    # Create age groups
+    # assume df already exists
     bins = [0, 12, 19, 59, np.inf]
     labels = ["Child", "Teen", "Adult", "Senior"]
 
@@ -40,7 +40,7 @@ def survival_demographics(df):
 # Exercise 2
 # -------------------------------------------------
 
-def family_groups(df):
+def family_groups():
 
     df["family_size"] = df["SibSp"] + df["Parch"] + 1
 
@@ -57,7 +57,7 @@ def family_groups(df):
     return grouped
 
 
-def last_names(df):
+def last_names():
 
     df["last_name"] = df["Name"].str.split(",").str[0]
 
@@ -76,7 +76,7 @@ def last_names(df):
 # Bonus
 # -------------------------------------------------
 
-def determine_age_division(df):
+def determine_age_division():
 
     median_age = df.groupby("Pclass")["Age"].transform("median")
 
