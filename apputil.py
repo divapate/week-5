@@ -82,10 +82,10 @@ def last_names():
 # Bonus: Age Division
 # -------------------------------------------------
 
-def determine_age_division():
-    df = pd.read_csv(DATA_URL)
-    df.columns = df.columns.str.lower()
+def determine_age_division(df):
 
     median_age = df.groupby("pclass")["age"].transform("median")
+
     df["older_passenger"] = df["age"] > median_age
+
     return df
