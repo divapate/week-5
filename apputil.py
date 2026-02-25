@@ -87,10 +87,10 @@ def determine_age_division():
     df = pd.read_csv(DATA_URL)
     df.columns = df.columns.str.lower()
 
-    # Calculate median age per passenger class (pclass)
+    # Calculate median age per passenger class
     median_age = df.groupby("pclass")["age"].transform("median")
 
-    # Create boolean column: True if passenger's age > median for their class
-    df["older_passenger"] = df["age"] > median_age
+    # Create boolean column, but set NaN where age is missing
+    df["older_passenger"] = (df["age"] > median_age).where(df["age"].notna())
 
     return df
