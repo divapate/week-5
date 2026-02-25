@@ -82,10 +82,15 @@ def last_names():
 # Bonus: Age Division
 # -------------------------------------------------
 
-def determine_age_division(df):
+def determine_age_division():
+    # Load data and force lowercase column names
+    df = pd.read_csv(DATA_URL)
+    df.columns = df.columns.str.lower()
 
+    # Calculate median age per passenger class (pclass)
     median_age = df.groupby("pclass")["age"].transform("median")
 
+    # Create boolean column: True if passenger's age > median for their class
     df["older_passenger"] = df["age"] > median_age
 
     return df
