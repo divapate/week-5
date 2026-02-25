@@ -5,62 +5,59 @@ import numpy as np
 
 
 # -------------------------------------------------
-# Exercise 1: Survival Demographics
+# Exercise 1
 # -------------------------------------------------
 
 def survival_demographics(df):
 
-    df = df.copy()
-    df = df.dropna(subset=["Age"])
-
+    # Create age groups
     bins = [0, 12, 19, 59, np.inf]
     labels = ["Child", "Teen", "Adult", "Senior"]
 
-    df["age_group"] = pd.cut(df["Age"], bins=bins, labels=labels)
+    df["age_group"] = pd.cut(
+        df["Age"],
+        bins=bins,
+        labels=labels
+    )
 
-    grouped = (
-        df.groupby(["Pclass", "Sex", "age_group"])
-        .agg(
-            n_passengers=("Survived", "count"),
-            n_survivors=("Survived", "sum")
-        )
-        .reset_index()
+    grouped = df.groupby(
+        ["Pclass", "Sex", "age_group"],
+        as_index=False
+    ).agg(
+        n_passengers=("Survived", "count"),
+        n_survivors=("Survived", "sum")
     )
 
     grouped["survival_rate"] = (
-        grouped["n_survivors"] / grouped["n_passengers"]
+        grouped["n_survivors"] /
+        grouped["n_passengers"]
     )
 
     return grouped
 
 
 # -------------------------------------------------
-# Exercise 2: Family Size and Wealth
+# Exercise 2
 # -------------------------------------------------
 
 def family_groups(df):
 
-    df = df.copy()
-
     df["family_size"] = df["SibSp"] + df["Parch"] + 1
 
-    grouped = (
-        df.groupby(["family_size", "Pclass"])
-        .agg(
-            n_passengers=("Fare", "count"),
-            avg_fare=("Fare", "mean"),
-            min_fare=("Fare", "min"),
-            max_fare=("Fare", "max")
-        )
-        .reset_index()
+    grouped = df.groupby(
+        ["family_size", "Pclass"],
+        as_index=False
+    ).agg(
+        n_passengers=("Fare", "count"),
+        avg_fare=("Fare", "mean"),
+        min_fare=("Fare", "min"),
+        max_fare=("Fare", "max")
     )
 
     return grouped
 
 
 def last_names(df):
-
-    df = df.copy()
 
     df["last_name"] = df["Name"].str.split(",").str[0]
 
@@ -76,15 +73,13 @@ def last_names(df):
 
 
 # -------------------------------------------------
-# Bonus: Age Division
+# Bonus
 # -------------------------------------------------
 
 def determine_age_division(df):
 
-    df = df.copy()
+    median_age = df.groupby("Pclass")["Age"].transform("median")
 
-    class_medians = df.groupby("Pclass")["Age"].transform("median")
-
-    df["older_passenger"] = df["Age"] > class_medians
+    df["older_passenger"] = df["Age"] > median_age
 
     return df
