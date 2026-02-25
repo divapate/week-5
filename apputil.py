@@ -8,15 +8,14 @@ import numpy as np
 # Exercise 1: Survival Demographics
 # -------------------------------------------------
 
-def survival_demographics():
-    df = pd.read_csv("titanic.csv")
+def survival_demographics(df):
 
-    # Remove missing ages
+    df = df.copy()
     df = df.dropna(subset=["Age"])
 
-    # Create age groups (Categorical dtype automatically)
     bins = [0, 12, 19, 59, np.inf]
     labels = ["Child", "Teen", "Adult", "Senior"]
+
     df["age_group"] = pd.cut(df["Age"], bins=bins, labels=labels)
 
     grouped = (
@@ -39,8 +38,9 @@ def survival_demographics():
 # Exercise 2: Family Size and Wealth
 # -------------------------------------------------
 
-def family_groups():
-    df = pd.read_csv("titanic.csv")
+def family_groups(df):
+
+    df = df.copy()
 
     df["family_size"] = df["SibSp"] + df["Parch"] + 1
 
@@ -58,8 +58,9 @@ def family_groups():
     return grouped
 
 
-def last_names():
-    df = pd.read_csv("titanic.csv")
+def last_names(df):
+
+    df = df.copy()
 
     df["last_name"] = df["Name"].str.split(",").str[0]
 
@@ -78,8 +79,9 @@ def last_names():
 # Bonus: Age Division
 # -------------------------------------------------
 
-def determine_age_division():
-    df = pd.read_csv("titanic.csv")
+def determine_age_division(df):
+
+    df = df.copy()
 
     class_medians = df.groupby("Pclass")["Age"].transform("median")
 
