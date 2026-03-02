@@ -94,3 +94,50 @@ def determine_age_division():
     df["older_passenger"] = (df["age"] > median_age).where(df["age"].notna())
 
     return df
+
+import plotly.express as px
+
+#Visualization 1
+def visualize_demographic():
+    df = survival_demographics()
+
+    fig = px.bar(
+        df,
+        x="age_group",
+        y="survival_rate",
+        color="sex",
+        facet_col="pclass",
+        barmode="group",
+        title="Survival Rate by Age Group, Sex, and Class"
+    )
+
+    return fig
+#Visualization 2
+def visualize_families():
+    df = family_groups()
+
+    fig = px.line(
+        df,
+        x="family_size",
+        y="avg_fare",
+        color="pclass",
+        markers=True,
+        title="Average Fare by Family Size and Class"
+    )
+
+    return fig
+
+#Visualization 3
+def visualize_family_size():
+    df = family_groups()
+
+    fig = px.bar(
+        df,
+        x="family_size",
+        y="n_passengers",
+        color="pclass",
+        barmode="group",
+        title="Number of Passengers by Family Size and Class"
+    )
+
+    return fig
